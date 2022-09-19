@@ -12,10 +12,8 @@ function Login() {
   const [token, setToken] = useState("");
   const navigate = useNavigate();
 
-  console.log(process.env.REACT_APP_BACKEND_URL,process.env.REACT_APP_CLIENT_ID,process.env.REACT_APP_URL)
   useEffect(()=>{
     setToken(localStorage.getItem("loginData"));
-    console.log(token)
         if(token){
         console.log("Esse é seu token",token)
           navigate("/logadocomsucesso");
