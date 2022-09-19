@@ -1,11 +1,10 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useState, useContext } from "react";
+import { useState, useContext,useEffect } from "react";
 import axios from "axios";
 import qs from "query-string";
 import logo from "./assets/images/logo.png";
-import { useEffect } from "react/cjs/react.development";
 
 function Login() {
   const [email, setEmail] = useState("");
