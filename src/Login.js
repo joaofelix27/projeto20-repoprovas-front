@@ -3,18 +3,31 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
 import axios from "axios";
-import qs from 'query-string'
+import qs from "query-string";
+import logo from "./assets/images/logo.png";
+import { useEffect } from "react/cjs/react.development";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [token, setToken] = useState("");
   const navigate = useNavigate();
-  console.log("oi",process.env.REACT_APP_CLIENT_ID,process.env.REACT_APP_URL)
+
+
+  useEffect(()=>{
+    setToken(localStorage.getItem("loginData"));
+        if(token){
+        console.log("Esse é seu token",token)
+          navigate("/logadocomsucesso");
+        }
+        
+    },[token,setToken]);
+
   function fazerLogin(event) {
     event.preventDefault();
-    
+
     if (email !== "") {
-      const URL = `https://narutinstore-api.herokuapp.com/login`;
+      const URL = `${process.env.REACT_APP_BACKEND_URL}/sign-in`;
       const profileData = {
         email: email,
         password: senha,
@@ -23,50 +36,57 @@ function Login() {
       promise
         .then((response) => {
           const { data } = response;
-          const loginData = { ...data };
           const strLoginData = JSON.stringify(data);
           window.localStorage.setItem("loginData", strLoginData);
-            navigate("/");
+          setToken(strLoginData)
+          navigate("/teste");
         })
         .catch((err) => {
           alert("Erro no Login, dados incorretos!");
         });
     }
   }
-  function logarGithub () {
-    const GitHub_Url='https://github.com/login/oauth/authorize'
-    const params={
-        response_type:'code',
-        scope:'user',
-        client_id:process.env.REACT_APP_CLIENT_ID,
-        redirect_uri:process.env.REACT_APP_URL,
-    }
-    
-    const querystrings = qs.stringify(params)
-    const authURL = `${GitHub_Url}?${querystrings}`
-    window.location.href=authURL
-   
+  function logarGithub() {
+    const GitHub_Url = "https://github.com/login/oauth/authorize";
+    const params = {
+      response_type: "code",
+      scope: "user",
+      client_id: process.env.REACT_APP_CLIENT_ID,
+      redirect_uri: process.env.REACT_APP_URL,
+    };
+
+    const querystrings = qs.stringify(params);
+    const authURL = `${GitHub_Url}?${querystrings}`;
+    window.location.href = authURL;
   }
 
-  window.onload =async () => {
-    const {code}=qs.parseUrl(window.location.href).query
+  window.onload = async () => {
+    const { code } = qs.parseUrl(window.location.href).query;
     if (code) {
-        try{
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/sign-in/github`,{code})
-    
-    const  user = response.data
-    console.log(user)
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/sign-in/github`,
+          { code }
+        );
 
-    }   catch(error) {
-        alert("Deu ruim")
-        console.log(error)
+        const user = response.data;
+        const strLoginData = JSON.stringify(user);
+        window.localStorage.setItem("loginData", strLoginData);
+        setToken(strLoginData)
+      } catch (error) {
+        alert("Deu ruim");
+        console.log(error);
+      }
     }
-    }
-}
+  };
 
   function montarFormularioLogin() {
     return (
       <>
+        <h1 className="label">Login</h1>
+        <button className="gitHub" type="submit" onClick={() => logarGithub()}>
+          ENTRAR COM O GITHUB
+        </button>
         <form>
           <input
             type="email"
@@ -82,7 +102,6 @@ function Login() {
           ></input>
           <button type="submit">Entrar</button>
         </form>
-        <button type="submit" onClick={() => logarGithub()}>Logar com GitHub</button>
         <Link to="/register" style={{ textDecoration: "none" }}>
           <h1>Primeira vez? Cadastre-se!</h1>
         </Link>
@@ -95,9 +114,10 @@ function Login() {
     <Container>
       <Header>
         <div>
-          <h1>Narutin</h1>
+          <img src={logo} />
         </div>
       </Header>
+
       <FormularioLogin onSubmit={fazerLogin}>{formularioLogin}</FormularioLogin>
     </Container>
   );
@@ -109,53 +129,80 @@ const Container = styled.div`
   align-items: center;
   width: 100%;
   height: 100vh;
-  padding-top: 159px;
 `;
 const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 150px;
-  div {
-    margin-top: 17px;
-    h1 {
-      font-family: Permanent Marker;
-      font-size: 32px;
-      font-weight: 400;
-      line-height: 47px;
-      letter-spacing: 0em;
-      color:#fafafa;
-    }
-  }
+  margin-top: 55px;
   img {
-    width: 70px;
+    width: 250px;
   }
+  margin-bottom: 240px;
 `;
 const FormularioLogin = styled.div`
   padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  .label {
+    font-family: Poppins;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.15px;
+    margin-bottom: 40px;
+  }
+  .gitHub {
+    height: 56px;
+    width: 464px;
+    border-radius: 4px;
+    background: #424445;
+    font-family: Roboto;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.4px;
+    color:#FAFAFA;
+  }
   form {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+       button {
+    height: 44px;
+    width: 88px;
+    border-radius: 4px;
+    box-shadow: 0px 1px 5px 0px #0000001f;
+    box-shadow: 0px 2px 2px 0px #00000024;
+    box-shadow: 0px 3px 1px -2px #00000033;
+    background-color: #1976D2;
+    font-family: Roboto;
+    color:#fafafa;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.4000000059604645px;
+    margin-bottom: 32px;
+    width:100%
+  }
   }
 
   input {
-    height: 58px;
-    width: 326px;
-    border-radius: 5px;
-    background-color: #000000;
-    border: 0px;
-    margin-bottom: 13px;
-    font-family: Raleway;
+    height: 56px;
+    width: 464px;
+    font-family: Poppins;
     font-size: 20px;
-    font-weight: 400;
-    line-height: 23px;
-    letter-spacing: 0em;
-    text-align: left;
-    color: #ffffff;
-
-    padding: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.15px;
+    margin-bottom: 10px;
+    padding: 12px;
+    border: 1px solid #878787;
+    border-radius: 5px;
   }
   button {
     border: 0px;

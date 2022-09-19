@@ -3,33 +3,27 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import logo from "./assets/images/logo.png";
+
 
 export default function Cadastro() {
   const [email, setEmail] = useState("");
-  const [cpf, setCPF] = useState("");
   const [senha, setSenha] = useState("");
   const [senhaconf, setSenhaconf] = useState("");
-  const [nome, setNome] = useState("");
   const navigate = useNavigate();
 
   function fazerCadastro(event) {
     event.preventDefault();
-    const testeCPF = TestaCPF(cpf);
     if (senha !== senhaconf) {
       alert("Senhas não conferem");
       return;
     }
-    if (!testeCPF) {
-      alert("CPF Inválido!");
-      return;
-    }
-    if (email !== "" && testeCPF) {
-      const URL = `https://narutinstore-api.herokuapp.com/register`;
+    if (email !== "") {
+      const URL = `${process.env.REACT_APP_BACKEND_URL}/sign-up`;
       const profileData = {
         email: email,
-        cpf: cpf,
-        name: nome,
         password: senha,
+        confirmedPassword:senhaconf
       };
       const promise = axios.post(URL, profileData);
       promise
@@ -37,13 +31,13 @@ export default function Cadastro() {
           console.log(response);
           if (response.status === 201) {
             alert("E-mail cadastrado!");
-            navigate("/login");
+            navigate("/");
           }
         })
         .catch((err) => {
           if (err.response.status === 409) {
             alert("E-mail já cadastrado!");
-          } else if (err.response.status === 408){
+          } else if (err.response.status === 408) {
             alert("CPF já cadastrado!");
           } else {
             alert("Erro no cadastro!");
@@ -51,63 +45,12 @@ export default function Cadastro() {
         });
     }
   }
-  function TestaCPF(strCPF) {
-    let Soma;
-    let Resto;
-    Soma = 0;
-    if (
-      cpf.length !== 11 ||
-      cpf === "00000000000" ||
-      cpf === "11111111111" ||
-      cpf === "22222222222" ||
-      cpf === "33333333333" ||
-      cpf === "44444444444" ||
-      cpf === "55555555555" ||
-      cpf === "66666666666" ||
-      cpf === "77777777777" ||
-      cpf === "88888888888" ||
-      cpf === "99999999999"
-    ) {
-      return false;
-    }
-
-    for (let i = 1; i <= 9; i++) {
-      Soma = Soma + parseInt(strCPF.substring(i - 1, i)) * (11 - i);
-      Resto = (Soma * 10) % 11;
-    }
-
-    if (Resto === 10 || Resto === 11) {
-      Resto = 0;
-    }
-    if (Resto != parseInt(strCPF.substring(9, 10))) {
-      return false;
-    }
-
-    Soma = 0;
-    for (let i = 1; i <= 10; i++) {
-      Soma = Soma + parseInt(strCPF.substring(i - 1, i)) * (12 - i);
-      Resto = (Soma * 10) % 11;
-    }
-
-    if (Resto == 10 || Resto == 11) {
-      Resto = 0;
-    }
-    if (Resto != parseInt(strCPF.substring(10, 11))) {
-      return false;
-    }
-    return true;
-  }
 
   function montarFormularioCadastro() {
     return (
       <>
         <form>
-          <input
-            type="text"
-            required
-            placeholder="Nome"
-            onChange={(e) => setNome(e.target.value)}
-          ></input>
+        <h1 className="label">Cadastro</h1>
           <input
             type="email"
             required
@@ -115,28 +58,22 @@ export default function Cadastro() {
             onChange={(e) => setEmail(e.target.value)}
           ></input>
           <input
-            type="number"
-            placeholder="CPF"
-            required
-            pattern="(\d{3}\.?\d{3}\.?\d{3}-?\d{2})|(\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2})"
-            title="Digite um CPF no formato: xxx.xxx.xxx-xx"
-            onChange={(e) => setCPF(e.target.value)}
-          ></input>
-          <input
             type="password"
             required
             placeholder="Senha"
+            minLength={10}
             onChange={(e) => setSenha(e.target.value)}
           ></input>
           <input
             type="password"
             required
             placeholder="Confirme a senha"
+            minLength={10}
             onChange={(e) => setSenhaconf(e.target.value)}
           ></input>
           <button type="submit">Cadastrar</button>
         </form>
-        <Link to="/login" style={{ textDecoration: "none" }}>
+        <Link to="/" style={{ textDecoration: "none" }}>
           <h1>Já tem uma conta? Entre agora!</h1>
         </Link>
       </>
@@ -147,8 +84,8 @@ export default function Cadastro() {
   return (
     <Container>
       <Header>
-        <div>
-          <h1>Narutin</h1>
+      <div>
+          <img src={logo} />
         </div>
       </Header>
       <FormularioCadastro onSubmit={fazerCadastro}>
@@ -163,53 +100,63 @@ const Container = styled.div`
   align-items: center;
   width: 100%;
   height: 100vh;
-  padding-top: 95px;
 `;
 const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 150px;
-  div {
-    margin-top: 17px;
-    h1 {
-      font-family: Permanent Marker;
-      font-size: 32px;
-      font-weight: 400;
-      line-height: 47px;
-      letter-spacing: 0em;
-      color:#fafafa;
-    }
-  }
+  margin-top: 55px;
   img {
-    width: 70px;
+    width: 250px;
   }
+  margin-bottom: 240px;
 `;
 const FormularioCadastro = styled.div`
-  padding-top: 28px;
   form {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    .label {
+    font-family: Poppins;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.15px;
+    margin-bottom: 40px;
+  }
+    button {
+    height: 44px;
+    width: 88px;
+    border-radius: 4px;
+    box-shadow: 0px 1px 5px 0px #0000001f;
+    box-shadow: 0px 2px 2px 0px #00000024;
+    box-shadow: 0px 3px 1px -2px #00000033;
+    background-color: #1976D2;
+    font-family: Roboto;
+    color:#fafafa;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.4000000059604645px;
+    margin-bottom: 32px;
+    width:100%
+  }
   }
 
   input {
-    height: 58px;
-    width: 326px;
-    border-radius: 5px;
-    background-color: #000000;
-    border: 0px;
-    margin-bottom: 13px;
-    font-family: Raleway;
+    height: 56px;
+    width: 464px;
+    font-family: Poppins;
     font-size: 20px;
-    font-weight: 400;
-    line-height: 23px;
-    letter-spacing: 0em;
-    text-align: left;
-    color: #ffffff;
-
-    padding: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: 0.15px;
+    margin-bottom: 10px;
+    padding: 12px;
+    border: 1px solid #878787;
+    border-radius: 5px;
   }
   button {
     border: 0px;

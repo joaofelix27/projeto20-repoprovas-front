@@ -49,19 +49,15 @@ const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    font-family: 'Raleway', sans-serif;
-    font-family: "Roboto";
-    font-family: 'Saira Stencil One', cursive;
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Lexend Deca', sans-serif;
     font-family: 'Poppins', sans-serif;
-    background-color: #F47213;
-;
+    font-family: 'Roboto', sans-serif;
   }
   *{
     box-sizing: border-box;
   }
   ::placeholder { 
-    color: #FFFFFF;
+    color: #000000;
   }
 `;
 
